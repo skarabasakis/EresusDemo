@@ -26,9 +26,9 @@ mysql -u $dbUser -p$dbPassword -e "CREATE DATABASE $dbName";
 
 # Download Core
 ##########################################################
-drush dl drupal -y --use-site-dir=$hostPath --drupal-project-rename=$siteDomain;
+drush dl drupal -y --use-site-dir=$hostPath --drupal-project-rename=$sitePath;
 
-cd $hostPath/$siteDomain;
+cd $hostPath/$sitePath;
 
 # Install core
 ##########################################################
