@@ -59,12 +59,13 @@ contrib_modules_enabled+=" pathauto ";
 
 # Contrib modules to add to project.
 # Comment out modules that are not needed.
-contrib_modules_enabled+=" omega ohm ";
+contrib_themes_enabled+=" omega ohm ";
 default_theme_name="ohm";
 
 drush -y dis $core_modules_disabled;
 drush -y dl --destination="sites/default/modules/contrib" $contrib_modules_enabled $contrib_modules_not_enabled
 drush -y en $contrib_modules_enabled
+drush -y dl $contrib_themes_enabled $contrib_modules_not_enabled
 drush -y vset theme_default $default_theme_name
 
 # Pre configure settings
@@ -78,4 +79,4 @@ drush vset -y user_register 0;         # allow only admins to register users
 drush -y gent tags 500;  # Generate 500 tags
 drush -y genc 950;       # Generate 990 posts
 # Generate 50 posts with some time difference
-for i in {1..10}; do drush -y genc 1 5; sleep 10; done;
+for i in {1..50}; do drush -y genc 1 5; sleep 10; done;
