@@ -18,10 +18,19 @@ function eresusdemo_block_info() {
     'status'      => 1,                            // Enabled by default
     'weight'      => 0,
     'region'      => 'highlighted',
-    'visibility'  => BLOCK_VISIBILITY_LISTED,
-    // This relies on user-configured path rules and could break.
-    // TODO: Retrieve content-type path patterns dynamically?
-    'pages'       => implode("\n", array('article/*', 'page/*')),
+
+    // TODO: Set visibility by content type via the appropriate database,
+    //       instead of a php block.
+    'visibility'  => BLOCK_VISIBILITY_PHP,
+    'pages'       => '<?php
+      $node = menu_get_object();
+      if ($node) {
+        switch($node->type) {
+          case "article": case "page": return TRUE;
+          default:                     return FALSE;
+        }
+      }
+      ?>',
   );
 
   return $blocks;

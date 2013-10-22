@@ -7,7 +7,7 @@ sitePath="eresusdemo"
 # Site
 siteDomain="eresusdemo.karabasakis.net"
 siteName="Eresus Demo"
-siteSlogan="Because Drupal rocks but I don't..."
+siteSlogan="Because\ Drupal\ rocks\ but\ I\ don\'t..."
 siteLocale="en"
 
 # Database (assuming MySQL)
@@ -32,10 +32,10 @@ cd $hostPath/$sitePath;
 
 # Install core
 ##########################################################
-drush -y site-install standard \
-  --account-mail=$adminEmail --account-name=$AdminUsername \
-  --account-pass=$AdminPassword --site-name=$siteName --site-mail=$adminEmail \
-  --locale=$siteLocale --db-url=mysql://$dbUser:$dbPassword@$dbHost/$dbName;
+#drush -y site-install standard \
+#  --account-mail=$adminEmail --account-name=$AdminUsername \
+#  --account-pass=$AdminPassword --site-name=$siteName --site-mail=$adminEmail \
+#  --locale=$siteLocale --db-url=mysql://$dbUser:$dbPassword@$dbHost/$dbName;
 
 # Modules and themes
 ##########################################################
