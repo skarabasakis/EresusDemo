@@ -1,7 +1,11 @@
 #!/bin/bash
 
+# Paths
+hostPath="."
+sitePath="eresusdemo"
+
 # Site
-siteDomain="eresusdemo.dev"
+siteDomain="eresusdemo.karabasakis.net"
 siteName="Eresus Demo"
 siteSlogan="Because Drupal rocks but I don't..."
 siteLocale="en"
