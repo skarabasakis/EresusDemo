@@ -77,13 +77,15 @@ function eresusdemo_views_pre_build(&$view) {
   if ($view->name == 'latest_articles' ) {
     // Modify number of latest posts displayed in block, depending on current node type.
     $node = menu_get_object();
-    switch ($node->type) {
-      case 'article':
-        $view->display_handler->options['pager']['options']['items_per_page'] = 20;
-        break;
-      case 'page':
-        $view->display_handler->options['pager']['options']['items_per_page'] = 40;
-        break;
+    if ($node) {
+      switch ($node->type) {
+        case 'article':
+          $view->display_handler->options['pager']['options']['items_per_page'] = 20;
+          break;
+        case 'page':
+          $view->display_handler->options['pager']['options']['items_per_page'] = 40;
+          break;
+      }
     }
 
     // Set a message to be displayed when there are no recent posts
