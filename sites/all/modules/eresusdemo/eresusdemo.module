@@ -1,0 +1,175 @@
+<?php
+
+/**
+ * @file
+ * Implements a custom block (view_recent_posts) that renders a database-stored
+ * view with some modifications.
+ */
+
+/**
+ * Implements hook_block_info().
+ *
+ * Defines a custom recent posts block
+ */
+function eresusdemo_block_info() {
+
+  $blocks['view_recent_posts'] = array(
+    'info'        => t('View: Recent Posts'),
+    'status'      => 1,                            // Enabled by default
+    'weight'      => 0,
+    'region'      => 'highlighted',
+    'visibility'  => BLOCK_VISIBILITY_LISTED,
+    // This relies on user-configured path rules and could break.
+    // TODO: Retrieve content-type path patterns dynamically?
+    'pages'       => implode("\n", array('article/*', 'page/*')),
+  );
+
+  return $blocks;
+}
+
+
+/**
+ * Implements hook_block_view().
+ */
+function eresusdemo_block_view($delta = '') {
+
+  switch ($delta) {
+    case 'view_recent_posts':
+      $block['subject'] = t('Latest Posts');
+      $block['content'] = eresusdemo_render_latestposts();
+      break;
+  }
+
+  return $block;
+}
+
+
+/**
+ * Generates a message to be used when there are no recent posts.
+ * The message contains a link to the front page.
+ */
+function eresusdemo_no_content_msg() {
+  $frontpage_url = url('<front>');
+  return t('No content to display.') . " <a href=\"$frontpage_url\">" . t('Home') . " &raquo;</a>";
+}
+
+
+/**
+ * Render the latest_posts view
+ */
+function eresusdemo_render_latestposts() {
+
+  $view = views_get_view('latest_articles');
+
+  // Verifying that view exists
+  // TODO: Also check view permissions
+  if ($view) {
+    return $view->preview();
+  }
+}
+
+
+/**
+ * Implements hook_views_pre_build().
+ */
+function eresusdemo_views_pre_build(&$view) {
+
+  if ($view->name == 'latest_articles' ) {
+    // Modify number of latest posts displayed in block, depending on current node type.
+    $node = menu_get_object();
+    switch ($node->type) {
+      case 'article':
+        $view->display_handler->options['pager']['options']['items_per_page'] = 20;
+        break;
+      case 'page':
+        $view->display_handler->options['pager']['options']['items_per_page'] = 40;
+        break;
+    }
+
+    // Set a message to be displayed when there are no recent posts
+    // TODO: Initialize a new handler instead of reusing the one already
+    //       defined by the view.
+
+    //$view->display_handler->handlers['empty'] = array ('area_text_custom' => new views_handler_area());
+    if ($view->display_handler->handlers['empty']['area_text_custom']) {
+      $view->display_handler->handlers['empty']['area_text_custom']->options['empty']   = TRUE;
+      $view->display_handler->handlers['empty']['area_text_custom']->options['label']   = "No results";
+      $view->display_handler->handlers['empty']['area_text_custom']->options['content'] = eresusdemo_no_content_msg();
+    }
+  }
+}
+
+
+/**
+ * Implements hook_views_post_render().
+ */
+function eresusdemo_views_post_render(&$view, &$output, &$cache) {
+
+  // Verify non-empty result
+  if ($view->result && count($view->result)) {
+
+    // Break down output string into array
+    $output_array = explode("<tbody>", $output);
+    $output_array[1] = explode("</tbody>", $output_array[1]);
+    $output_array[1][0] = explode("<tr", trim($output_array[1][0]));
+    array_shift($output_array[1][0]);
+
+    // Interject dummy text into the relevant segment of the output array
+    eresusdemo_interject_dummy_text(
+      eresusdemo_generate_dummy_text(),
+      $output_array[1][0],
+      5
+    );
+
+    // Compose output from broken down array.
+    array_unshift($output_array[1][0], "");
+    $output_array[1][0] = implode("<tr", $output_array[1][0]);
+    $output_array[1] = implode("</tbody>", $output_array[1]);
+    $output = implode("<tbody>", $output_array);
+  }
+}
+
+
+/**
+ * Returns a dummy text to be interjected into the view table, as a
+ * pre-generated html fragment
+ */
+function eresusdemo_generate_dummy_text() {
+
+  // TODO: Make $colspan dynamic, retrieving visible column count from the view.
+  $colspan = 3;
+  // TODO: Make dummytext dynamic
+  $dummytext = "This is some dummy text";
+
+  return sprintf(" class=\"dummy\"><td colspan=\"%d\">%s</td></tr>",
+    $colspan, $dummytext);
+}
+
+
+/**
+ * Interjects $dummytext (a provided html fragment) into $rows_array,
+ * repeated $every_n_rows
+ */
+function eresusdemo_interject_dummy_text($dummytext, &$rows_array, $every_n_rows) {
+
+  // Calculating first and last insertion point for dummy row.
+  // E.g. if $every_n_rows = 5, then:
+  //   if the view has 17 rows, then $first_insertion_row=5 and $last_insertion_row=15
+  //   if the view has 20 rows, then $first_insertion_row=5 and $last_insertion_row=15,
+  //   (dummy rows should only be inserted in-between, not at the end)
+  $n_rows = count($rows_array);
+  $first_insertion_row = $every_n_rows;
+  $last_insertion_row = (($n_rows % $every_n_rows) != 0 ?
+    $n_rows - $n_rows % $every_n_rows :
+    $n_rows - $every_n_rows);
+
+  // Interjecting dummy rows in the rows_array, back to front
+  for ($pos = $last_insertion_row; $pos > 0; $pos -= $every_n_rows) {
+    $rows_array = array_merge(
+      array_slice($rows_array, 0, $pos),
+      array($dummytext),
+      array_slice($rows_array, $pos)
+    );
+  }
+
+}

@@ -1,0 +1,9 @@
+name = Eresus Demo
+description = Provides a custom latest articles/pages block for Eresus Demo
+dependencies[] = views
+package = custom/eresusdemo
+core = 7.x
+
+files[] = eresusdemo.module
+
+stylesheets[all][] = eresusdemo.css
