@@ -53,9 +53,15 @@ contrib_modules_enabled+=" views views_ui views_bulk_operations";
 contrib_modules_enabled+=" panels ";
 contrib_modules_enabled+=" pathauto ";
 
+# Contrib modules to add to project.
+# Comment out modules that are not needed.
+contrib_modules_enabled+=" omega ohm ";
+default_theme_name="ohm";
+
 drush -y dis $core_modules_disabled;
 drush -y dl --destination="sites/default/modules/contrib" $contrib_modules_enabled $contrib_modules_not_enabled
 drush -y en $contrib_modules_enabled
+drush -y vset theme_default $default_theme_name
 
 # Pre configure settings
 ##########################################################
