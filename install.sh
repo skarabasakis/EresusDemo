@@ -24,7 +24,7 @@ mysql -u $dbUser -p$dbPassword -e "CREATE DATABASE $dbName";
 ##########################################################
 drush dl drupal -y --use-site-dir=$hostPath --drupal-project-rename=$siteDomain;
 
-cd $hostPath/$sitePath;
+cd $hostPath/$siteDomain;
 
 # Install core
 ##########################################################
@@ -68,3 +68,10 @@ drush -y vset theme_default $default_theme_name
 drush vset -y site_slogan $siteSlogan; # set site slogan
 drush vset -y user_pictures 0;         # disable user pictures
 drush vset -y user_register 0;         # allow only admins to register users
+
+# Generate dummy content
+##########################################################
+drush -y gent tags 500;  # Generate 500 tags
+drush -y genc 950;       # Generate 990 posts
+# Generate 50 posts with some time difference
+for i in {1..10}; do drush -y genc 1 5; sleep 10; done;
